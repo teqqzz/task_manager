@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="card-title mb-4">{{ 'Editar Tarefa' if task else 'Nova Tarefa' }}</h3>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Título da Tarefa</label>
+                        <input type="text" name="title" class="form-control" value="{{ task.title if task else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea name="description" class="form-control" rows="3">{{ task.description if task else '' }}</textarea>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="pendente" {% if task and task.status == 'pendente' %}selected{% endif %}>Pendente</option>
+                                <option value="em andamento" {% if task and task.status == 'em andamento' %}selected{% endif %}>Em Andamento</option>
+                                <option value="concluida" {% if task and task.status == 'concluida' %}selected{% endif %}>Concluída</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Atribuir a</label>
+                            <select name="assigned_to_id" class="form-select" required>
+                                {% for u in users %}
+                                    <option value="{{ u.id }}" {% if task and task.assigned_to_id == u.id %}selected{% elif not task and u.id == current_user.id %}selected{% endif %}>
+                                        {{ u.username }} ({{ u.email }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Salvar Tarefa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

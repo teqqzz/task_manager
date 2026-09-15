@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Dashboard do Grupo</h2>
+    <a href="{{ url_for('create_task') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Criar Tarefa
+    </a>
+</div>
+
+<!-- Métricas do Grupo -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-1">Total de Tarefas</h6>
+                <h2 class="card-title mb-0 fw-bold">{{ total_tasks }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-secondary text-white">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-1">Pendentes</h6>
+                <h2 class="card-title mb-0 fw-bold">{{ pending_tasks }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-warning text-dark">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-1">Em Andamento</h6>
+                <h2 class="card-title mb-0 fw-bold">{{ progress_tasks }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-1">Concluídas</h6>
+                <h2 class="card-title mb-0 fw-bold">{{ completed_tasks }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros de Status -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body d-flex align-items-center gap-2">
+        <span class="fw-bold me-2"><i class="bi bi-funnel"></i> Filtrar Status:</span>
+        <a href="{{ url_for('dashboard', status='todos') }}" class="btn btn-sm {{ 'btn-dark' if status_filter == 'todos' else 'btn-outline-dark' }}">Todos</a>
+        <a href="{{ url_for('dashboard', status='pendente') }}" class="btn btn-sm {{ 'btn-secondary' if status_filter == 'pendente' else 'btn-outline-secondary' }}">Pendente</a>
+        <a href="{{ url_for('dashboard', status='em andamento') }}" class="btn btn-sm {{ 'btn-warning text-dark' if status_filter == 'em andamento' else 'btn-outline-warning text-dark' }}">Em Andamento</a>
+        <a href="{{ url_for('dashboard', status='concluida') }}" class="btn btn-sm {{ 'btn-success' if status_filter == 'concluida' else 'btn-outline-success' }}">Concluída</a>
+    </div>
+</div>
+
+<!-- Lista de Tarefas -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Título</th>
+                        <th>Status</th>
+                        <th>Atribuído a</th>
+                        <th>Criado por</th>
+                        <th>Data Criação</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold">{{ task.title }}</div>
+                            <small class="text-muted">{{ task.description or 'Sem descrição' }}</small>
+                        </td>
+                        <td>
+                            {% if task.status == 'pendente' %}
+                                <span class="badge bg-secondary">Pendente</span>
+                            {% elif task.status == 'em andamento' %}
+                                <span class="badge bg-warning text-dark">Em Andamento</span>
+                            {% else %}
+                                <span class="badge bg-success">Concluída</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ task.assignee.username }}</span></td>
+                        <td><small class="text-muted">{{ task.creator.username }}</small></td>
+                        <td><small class="text-muted">{{ task.created_at.strftime('%d/%m/%Y %H:%M') }}</small></td>
+                        <td class="text-end">
+                            <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="{{ url_for('delete_task', task_id=task.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Deseja excluir esta tarefa?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">Nenhuma tarefa encontrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
